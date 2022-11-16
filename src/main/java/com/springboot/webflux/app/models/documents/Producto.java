@@ -1,6 +1,7 @@
 package com.springboot.webflux.app.models.documents;
 import java.util.Date;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -15,6 +16,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 public class Producto {
 
     @Id
+    @NotEmpty
     private String id;
 @NotEmpty
     private String nombre;
@@ -30,7 +32,7 @@ public void setCategoria(Categoria categoria) {
 
 @DateTimeFormat(pattern = "yyy-MM-dd")
     private Date createAt;
-
+@Valid
     private Categoria categoria;
 
     public Producto() {}
