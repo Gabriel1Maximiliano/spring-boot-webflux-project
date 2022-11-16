@@ -10,6 +10,7 @@
 <div>
     <a th:href="@{/listar}" >Volver</a>
     <form th:action="@{/form}" method="post" th:object="${producto}">
+        <input th:if="${producto.id != null}" type="hidden" th:field="*{id}" />
         <div>
             <label for="nombre">Nombre</label>
             <div><input type="text" th:field="*{nombre}"/></div>
@@ -24,7 +25,7 @@
         </div>
         <div>
             <label for="">Precio</label>
-            <div><input type="submit" value="crear"/></div>
+            <div><input type="submit" th:value="${boton}"/></div>
         </div>
     </form>
    
