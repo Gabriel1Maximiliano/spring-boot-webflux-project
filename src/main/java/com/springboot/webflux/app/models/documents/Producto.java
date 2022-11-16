@@ -15,13 +15,18 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Document("productos")
 public class Producto {
 
-    @Id
-    @NotEmpty
+@Id
+@NotEmpty
     private String id;
+
 @NotEmpty
     private String nombre;
+
 @NotNull
     private Double precio;
+
+    private String foto;
+
 public Categoria getCategoria() {
     return categoria;
 }
@@ -77,6 +82,15 @@ public void setCategoria(Categoria categoria) {
     public void setCreateAt(Date date) { 
 		this.createAt = date;
 	}
+
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
+    }
+    
 
    
 }

@@ -2,15 +2,19 @@ package com.springboot.webflux.app.models.documents;
 
 
 
+import java.io.File;
 import java.time.Duration;
 import java.util.Date;
+import java.util.UUID;
 
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
@@ -33,6 +38,9 @@ import reactor.core.publisher.Mono;
 public class ProductoController {
     @Autowired
     private ProductoService service;
+
+    @Value("${config.uploads.path}")
+	private String path;
 
     private static final Logger log= LoggerFactory.getLogger(ProductoController.class);
 
@@ -91,7 +99,8 @@ public class ProductoController {
               return Mono.just("form");
     }
     @PostMapping("/form")
-    public Mono<String> guardar(@Valid Producto producto,BindingResult result ,Model model, SessionStatus status){
+    public Mono<String> guardar(@Valid Producto producto,BindingResult result ,Model model,@RequestPart FilePart file, SessionStatus status){
+
         if(result.hasErrors()){
             model.addAttribute("titulo", "Errores en el formulario");
             model.addAttribute("boton", "Guardar");
@@ -101,20 +110,34 @@ public class ProductoController {
           
             Mono<Categoria> categoria = service.findCategoriaById(producto.getCategoria().getId());
             return categoria.flatMap(c->{
-                if(producto.getCreateAt() == null ){
-                    producto.setCreateAt(new Date());
-                }
+
+               if(producto.getCreateAt()==null){
+                producto.setCreateAt(new Date());
+               }
+               if(!file.filename().isEmpty()){
+                producto.setFoto(UUID.randomUUID().toString()+"-"+file.filename());
+               }
+    
+    
                 producto.setCategoria(c);
                 return service.save(producto);
-            })
+                })
            .doOnNext(p->{
-            log.info("Categoría asignada"+ p.getCategoria()+"Id cat: "+p.getCategoria().getId());
+                log.info("Categoría asignada"+ p.getCategoria()+"Id cat: "+p.getCategoria().getId());
                 log.info("Producto guardado"+ p.getNombre()+"Id :"+p.getId());
-            }).thenReturn("redirect:/listar?success=producto+guardado+con+éxito");
+            })
+            .flatMap(p->{
+                if(!file.filename().isEmpty()){
+                    return file.transferTo(new File(path+p.getFoto()));
+                }
+                return Mono.empty();
+            })
+            .thenReturn("redirect:/listar?success=producto+guardado+con+éxito");
         }
-
-      
     }
+      
+    
+
     @GetMapping("/eliminar/{id}")
 	public Mono<String> eliminar(@PathVariable String id){
 		return service.findById(id)
