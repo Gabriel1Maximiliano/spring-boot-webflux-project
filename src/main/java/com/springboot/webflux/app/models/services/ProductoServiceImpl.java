@@ -46,5 +46,11 @@ public class ProductoServiceImpl implements ProductoService {
             return producto;
         });
     }
+
+    @Override
+    public Flux<Producto> findAllConNombreUpperCaseRepeat() {
+        // TODO Auto-generated method stub
+        return findAllConNombreUpperCase().repeat(5000);
+    }
     
 }

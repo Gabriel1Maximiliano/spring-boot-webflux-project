@@ -47,10 +47,7 @@ public class ProductoController {
     @GetMapping("/listar-full")
 	public String listarFull(Model model) {
 		
-		Flux<Producto> productos = service.findAll().map(producto->{
-            producto.setNombre(producto.getNombre().toUpperCase());
-            return producto;
-        });
+		Flux<Producto> productos = service.findAllConNombreUpperCaseRepeat();
 
 		model.addAttribute("productos", productos);
 		model.addAttribute("titulo", "Listado de productos");
@@ -59,10 +56,7 @@ public class ProductoController {
     	@GetMapping("/listar-chunked")
 	public String listarChunked(Model model) {
 		
-		Flux<Producto> productos = service.findAll().map(producto->{
-            producto.setNombre(producto.getNombre().toUpperCase());
-            return producto;
-        }).repeat(5000);
+		Flux<Producto> productos = service.findAllConNombreUpperCaseRepeat();
 		
 		model.addAttribute("productos", productos);
 		model.addAttribute("titulo", "Listado de productos");

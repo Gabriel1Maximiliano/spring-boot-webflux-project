@@ -13,12 +13,12 @@ public interface ProductoService {
 	public Mono<Producto> findById(String id);
 
 	public Mono<Producto> save(Producto producto);
-
+ 
 	public Mono<Void> delete(Producto producto);
 
 	  public Flux<Producto>  findAllConNombreUpperCase();
 
-	//  public Flux<Producto>  findAllConNombreUpperCaseRepeat();
+	  public Flux<Producto>  findAllConNombreUpperCaseRepeat(); 
 
 	// public Flux<Categoria>  findAllCategoria();
 
