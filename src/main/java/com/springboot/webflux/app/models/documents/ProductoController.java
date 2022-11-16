@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 
 import com.springboot.webflux.app.models.services.ProductoService;
 
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Controller
 public class ProductoController {
@@ -24,7 +26,7 @@ public class ProductoController {
 
     private static final Logger log= LoggerFactory.getLogger(ProductoController.class);
 @GetMapping({"/listar","/"})
-    public String listar(Model model){
+    public Mono<String> listar(Model model){
 
         Flux<Producto> productos = service.findAllConNombreUpperCase();
         
@@ -32,8 +34,22 @@ public class ProductoController {
 
         model.addAttribute("productos", productos);
         model.addAttribute("titulo", "Listado de productos");
-        return "listar";
+        return Mono.just("listar");
     }
+    @GetMapping("/form")  
+      public Mono<String> crear(Model model){
+        model.addAttribute("producto", new Producto());
+        model.addAttribute("titulo", "Formulario del producto");
+        return Mono.just("form");
+    }
+    @PostMapping("/form")
+    public Mono<String> guardar(Producto producto){
+        
+        return service.save(producto).doOnNext(p->{
+            log.info("Producto guardado"+ p.getNombre()+"Id :"+p.getId());
+        }).thenReturn("redirect:/listar");
+    }
+
     @GetMapping("/listar-datadriver")
     public String listarDataDriver(Model model){
 
