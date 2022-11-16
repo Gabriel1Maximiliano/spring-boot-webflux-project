@@ -10,10 +10,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 
-import com.springboot.webflux.app.models.dao.ProductoDao;
+
 import com.springboot.webflux.app.models.documents.Categoria;
 import com.springboot.webflux.app.models.documents.Producto;
-import com.springboot.webflux.app.models.services.ProductoServiceImpl;
+import com.springboot.webflux.app.models.services.ProductoService;
+
 
 import ch.qos.logback.classic.Logger;
 
@@ -22,7 +23,7 @@ import ch.qos.logback.classic.Logger;
 @SpringBootApplication
 public class SpringBootWebfluxProjectApplication implements CommandLineRunner  {
     @Autowired
-	private ProductoServiceImpl service;
+	private ProductoService service;
 	@Autowired
 	private ReactiveMongoTemplate mongoTemplate;
 
