@@ -1,18 +1,27 @@
 package com.springboot.webflux.app.models.documents;
 
 
+import org.springframework.core.io.UrlResource;
+
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Date;
 import java.util.UUID;
 
+import org.springframework.core.io.Resource;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
+
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Controller;
@@ -135,6 +144,23 @@ public class ProductoController {
             .thenReturn("redirect:/listar?success=producto+guardado+con+éxito");
         }
     }
+    @GetMapping("/ver/{id}")
+	public Mono<String> ver(Model model,@PathVariable String id){
+
+		return service.findById(id)
+				.doOnNext(p->{
+					model.addAttribute("producto",p);
+					model.addAttribute("titulo","Detalle Producto");
+				})
+				.switchIfEmpty(Mono.just(new Producto()))
+				.flatMap(p->{
+					if(p.getId()==null){
+						return Mono.error(new InterruptedException("No existe el producto"));
+					}
+					return Mono.just(p);
+				}).then(Mono.just("ver"))
+				.onErrorResume(ex-> Mono.just("redirect:/listar?error=no+existe+el+producto"));
+	}
       
     
 
@@ -183,5 +209,16 @@ public class ProductoController {
 		model.addAttribute("titulo", "Listado de productos");
 		return "listar-chunked";
 	}
-    
+    @GetMapping("/uploads/img/nombreFoto:.+")
+    public Mono<ResponseEntity<Resource>> verFoto(@PathVariable String nombreFoto) throws MalformedURLException {
+Path ruta = Paths.get(path).resolve(nombreFoto).toAbsolutePath();
+
+Resource imagen = new UrlResource(ruta.toUri());
+return Mono.just(
+        ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\""+((org.springframework.core.io.Resource) imagen).getFilename()+"\"")
+                .body(imagen)
+
+);
+
+    }
 } 
